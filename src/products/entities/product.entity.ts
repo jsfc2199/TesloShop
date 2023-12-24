@@ -10,10 +10,10 @@ export class Product {
   })
   title: string;
 
-  @Column('numeric', {
+  @Column('float', {
     default: 0,
   })
-  price: string;
+  price: number;
 
   //otra sintaxis para el decorador colum es pasarle un objeto directamente
   @Column({
@@ -30,7 +30,7 @@ export class Product {
   @Column('int', {
     default: 0,
   })
-  stock: string;
+  stock: number;
 
   @Column('text', {
     array: true,
