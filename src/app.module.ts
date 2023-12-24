@@ -1,7 +1,21 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT, //debe ser un numero
+      database: process.env.DB_NAME,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      autoLoadEntities: true, //carga automaticamente las entidades que vamos creando poco a poco
+      synchronize: true, //sirve para que si hacemos cambios en la entidades, inmediatamente las sincroniza, en produccion usualmente no se usa
+    }),
+  ],
   controllers: [],
   providers: [],
 })
