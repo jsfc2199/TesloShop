@@ -1,10 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
-import { log } from 'console';
 
 @Injectable()
 export class ProductsService {
@@ -12,6 +16,8 @@ export class ProductsService {
   usando el patron repositorio hacemos las interacciones a la base de datos
   esto esta creado por defecto por nest y typeOrm
   */
+
+  private readonly logger = new Logger('ProductsService'); //creamos una propiedad dentro de la clase para imprimir mejor los errores
 
   constructor(
     @InjectRepository(Product)
@@ -23,8 +29,7 @@ export class ProductsService {
       await this.productRepository.save(product); //guardarmos el registro en la base de datos
       return product;
     } catch (error) {
-      log(error);
-      throw new InternalServerErrorException('aaaaaaa');
+      this.handleDBExceptions(error);
     }
   }
 
@@ -42,5 +47,13 @@ export class ProductsService {
 
   remove(id: number) {
     return `This action removes a #${id} product`;
+  }
+
+  private handleDBExceptions(error: any) {
+    if (error.code === '23505') throw new BadRequestException(error.detail);
+    this.logger.error(error);
+    throw new InternalServerErrorException(
+      'Unexpected Error, check server logs',
+    );
   }
 }
