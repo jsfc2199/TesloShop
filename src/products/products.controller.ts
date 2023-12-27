@@ -28,7 +28,7 @@ export class ProductsController {
     return this.productsService.findAll(paginationDto);
   }
 
-  @Get(':termn')
+  @Get(':term')
   findOne(@Param('term') term: string) {
     return this.productsService.findOne(term);
   }
