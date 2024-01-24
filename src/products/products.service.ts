@@ -47,10 +47,19 @@ export class ProductsService {
 
   async findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
-    return await this.productRepository.find({
+    const products = await this.productRepository.find({
       take: limit,
       skip: offset,
-      //TODO: Relaciones
+      relations: {
+        images: true, //con el true indicamos "llena las imagenes al encontrar todo"
+      },
+    });
+
+    return products.map((product) => {
+      return {
+        ...product,
+        images: product.images.map((img) => img.url),
+      };
     });
   }
 
@@ -65,18 +74,28 @@ export class ProductsService {
       // product = await this.productRepository.findOneBy({
       //   slug: term,
       // });
-      const queryBuilder = this.productRepository.createQueryBuilder();
+      const queryBuilder = this.productRepository.createQueryBuilder('prod'); //añadimos el alias del producto
       product = await queryBuilder
         .where('UPPER(title) = :title or slug = :slug', {
           title: term.toUpperCase(),
           slug: term.toLocaleLowerCase(),
         })
+        .leftJoinAndSelect('prod.images', 'prodImages') //se colocan al menos dos alias, pero el que nos interesa es el primero
         .getOne();
     }
 
     if (!product)
       throw new NotFoundException(`Product with term: ${term} not found`);
     return product;
+  }
+
+  //helper para retornar las imagenes aplandas
+  async findOnePlain(term: string) {
+    const { images = [], ...rest } = await this.findOne(term);
+    return {
+      ...rest,
+      images: images.map((img) => img.url),
+    };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {

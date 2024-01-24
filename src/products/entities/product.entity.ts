@@ -59,7 +59,7 @@ export class Product {
   @OneToMany(
     () => ProductImage, //Indicamos que debe retornar un productImage
     (productImage) => productImage.product, //especificamos como se relaciona productImage con product (es decir inverso)
-    { cascade: true }, //sirve para que si eliminamos un producto, tambien eliminara las imagenes relacionadas
+    { cascade: true, eager: true }, // cascade: sirve para que si eliminamos un producto, tambien eliminara las imagenes relacionadas, //eager permite que al usar un metodo fin tengamos las relaciones
   )
   images?: ProductImage[];
 
