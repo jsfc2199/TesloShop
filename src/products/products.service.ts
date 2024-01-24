@@ -8,7 +8,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUUID } from 'uuid';
@@ -28,6 +28,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>, //sirve para insertar, transacciones, rollbacks y mas
     @InjectRepository(ProductImage) //este dato no debemos olvidar cambiarlo
     private readonly productImageRepository: Repository<ProductImage>, //añadimos el repositorio para las imagenes y crear instancias
+    private readonly dataSource: DataSource, //con esto tenemos acceso a la coneccion como tal de la base de datos
   ) {}
   async create(createProductDto: CreateProductDto) {
     try {
@@ -99,20 +100,49 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    //trabajams imagenes y el producto de manera independiente
+    const { images, ...toUpdate } = updateProductDto; //las imagenes pueden ser nulas
+
     //con preload buscamos el producto por un id y le cargamos las propieades del updateDto, es decir, lo modificamos en este paso
     const product = await this.productRepository.preload({
       id: id, //buscar por el id
-      ...updateProductDto, //coloca las propiedades del dto en este producto
-      images: [],
+      ...toUpdate, //coloca las propiedades del dto en este producto
     });
 
     if (!product)
       throw new NotFoundException(`Product with id: ${id} not found`);
 
+    //si hay un producto evaluamos si hay imagenes (create query runner)
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    //definimos los procedimientos que ejecutara el query runner (las transacciones que hará)
+    await queryRunner.connect(); //1. conectamos a la base de datos
+    await queryRunner.startTransaction(); //2.Indicamos que vamos a iniciar la transaccion
+
     //guardamos en la tabla
     try {
-      await this.productRepository.save(product);
+      //si images tiene info indica que debemos borrar las anteriores que teniamos
+      if (images) {
+        await queryRunner.manager.delete(ProductImage, { product: { id: id } }); //indicamos la entidad a eliminar, y el segundo parametro es el "where" es decir where id = id
+        //creamos la instancia de las nuevas imagenes
+        product.images = images.map((image) =>
+          this.productImageRepository.create({ url: image }),
+        );
+      }
+      //creamos la transaccion de guardar el producto
+      await queryRunner.manager.save(product);
+
+      //impatamos la base de datos con un commit
+      await queryRunner.commitTransaction();
+
+      await queryRunner.release(); //cerramos la conexión
+
+      // await this.productRepository.save(product);
+      //si tenemos imagenes pordemos usar el findOnePlain directamente porque no estamos borrando info
+      return this.findOnePlain(id);
     } catch (error) {
+      await queryRunner.rollbackTransaction(); //si hay un error hacemos rollback
+      await queryRunner.release(); //cerramos la conexión
       this.handleDBExceptions(error);
     }
 
