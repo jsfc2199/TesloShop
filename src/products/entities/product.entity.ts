@@ -61,7 +61,7 @@ export class Product {
     (productImage) => productImage.product, //especificamos como se relaciona productImage con product (es decir inverso)
     { cascade: true }, //sirve para que si eliminamos un producto, tambien eliminara las imagenes relacionadas
   )
-  images?: ProductImage;
+  images?: ProductImage[];
 
   @BeforeInsert()
   checkSlugInsert() {

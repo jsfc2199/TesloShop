@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUUID } from 'uuid';
+import { ProductImage } from './entities';
 
 @Injectable()
 export class ProductsService {
@@ -25,12 +26,20 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>, //sirve para insertar, transacciones, rollbacks y mas
+    @InjectRepository(ProductImage) //este dato no debemos olvidar cambiarlo
+    private readonly productImageRepository: Repository<ProductImage>, //añadimos el repositorio para las imagenes y crear instancias
   ) {}
   async create(createProductDto: CreateProductDto) {
     try {
-      const product = this.productRepository.create(createProductDto); //se crea solo la instancia
-      await this.productRepository.save(product); //guardarmos el registro en la base de datos
-      return product;
+      const { images = [], ...productDetails } = createProductDto; //desestructuramos el DTO
+      const product = this.productRepository.create({
+        ...productDetails,
+        images: images.map((image) =>
+          this.productImageRepository.create({ url: image }),
+        ),
+      }); //se crea solo la instancia junto con las imagenes
+      await this.productRepository.save(product); //guardarmos el registro en la base de datos tanto del producto como las imagenes
+      return { ...product, images: images };
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -75,6 +84,7 @@ export class ProductsService {
     const product = await this.productRepository.preload({
       id: id, //buscar por el id
       ...updateProductDto, //coloca las propiedades del dto en este producto
+      images: [],
     });
 
     if (!product)
