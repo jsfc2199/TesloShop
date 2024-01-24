@@ -1,8 +1,10 @@
+import { ProductImage } from './product-image.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -51,7 +53,15 @@ export class Product {
     default: [],
   })
   tags: string[];
-  //images
+
+  //un producto tiene muchas images, por lo que se usa one to many
+  //debemos especificar la relacion con el producto
+  @OneToMany(
+    () => ProductImage, //Indicamos que debe retornar un productImage
+    (productImage) => productImage.product, //especificamos como se relaciona productImage con product (es decir inverso)
+    { cascade: true }, //sirve para que si eliminamos un producto, tambien eliminara las imagenes relacionadas
+  )
+  images?: ProductImage;
 
   @BeforeInsert()
   checkSlugInsert() {
