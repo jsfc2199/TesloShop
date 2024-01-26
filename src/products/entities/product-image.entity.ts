@@ -10,6 +10,8 @@ export class ProductImage {
   url: string;
 
   //Muchas imagenes estan asociadas a un producto
-  @ManyToOne(() => Product, (product) => product.images)
+  @ManyToOne(() => Product, (product) => product.images, {
+    onDelete: 'CASCADE', //lo declaramos para borrar en casacada las imagenes de un producto si eliminamos el mismo
+  })
   product: Product;
 }
