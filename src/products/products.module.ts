@@ -8,5 +8,6 @@ import { Product, ProductImage } from './entities';
   controllers: [ProductsController],
   providers: [ProductsService],
   imports: [TypeOrmModule.forFeature([Product, ProductImage])], //for feature tiene un arreglo de las entidades
+  exports: [ProductsService], //exportarmos el servicio para usarlo en el seed
 })
 export class ProductsModule {}

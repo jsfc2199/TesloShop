@@ -161,4 +161,15 @@ export class ProductsService {
       'Unexpected Error, check server logs',
     );
   }
+
+  //para el seed
+  async deleteAllProducts() {
+    const query = this.productRepository.createQueryBuilder('product'); //product es el alias
+
+    try {
+      return await query.delete().where({}).execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
 }
