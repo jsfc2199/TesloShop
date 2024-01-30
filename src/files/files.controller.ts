@@ -1,5 +1,7 @@
 import {
   Controller,
+  FileTypeValidator,
+  ParseFilePipe,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -15,7 +17,15 @@ export class FilesController {
   @Post('product')
   //especificamos en el fileInterceptor la clave que tendrá en postman
   @UseInterceptors(FileInterceptor('file')) //usamos un interceptor para interceptar las solicitudes y mutar la respuesta
-  uploadProductImage(@UploadedFile() file: Express.Multer.File) {
+  uploadProductImage(
+    @UploadedFile(
+      //tambien se puede usar el ParseFilePipeBuilder como menciona la documentacion
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })], //añadimos un pipe para las validaciones del formato de imagen que queremos
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
     return file;
   }
 }
