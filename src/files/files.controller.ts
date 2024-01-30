@@ -9,6 +9,7 @@ import {
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { fileNamer } from './helpers/fileNamer.helper';
 
 @Controller('files')
 export class FilesController {
@@ -22,7 +23,8 @@ export class FilesController {
     FileInterceptor('file', {
       //guardamos el archivo en un espacio en memoria del proyecto
       storage: diskStorage({
-        destination: './static/uploads', //se sube al path que queremos
+        destination: './static/products', //se sube al path que queremos
+        filename: fileNamer,
       }),
     }),
   )
