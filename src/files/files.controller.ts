@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('files')
 export class FilesController {
@@ -16,7 +17,15 @@ export class FilesController {
   //usarlmente cargar archivos es un POST
   @Post('product')
   //especificamos en el fileInterceptor la clave que tendrá en postman
-  @UseInterceptors(FileInterceptor('file')) //usamos un interceptor para interceptar las solicitudes y mutar la respuesta
+  @UseInterceptors(
+    //usamos un interceptor para interceptar las solicitudes y mutar la respuesta
+    FileInterceptor('file', {
+      //guardamos el archivo en un espacio en memoria del proyecto
+      storage: diskStorage({
+        destination: './static/uploads', //se sube al path que queremos
+      }),
+    }),
+  )
   uploadProductImage(
     @UploadedFile(
       //tambien se puede usar el ParseFilePipeBuilder como menciona la documentacion
