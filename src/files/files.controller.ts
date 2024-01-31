@@ -1,8 +1,11 @@
 import {
   Controller,
   FileTypeValidator,
+  Get,
+  Param,
   ParseFilePipe,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -10,6 +13,7 @@ import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { fileNamer } from './helpers/fileNamer.helper';
+import { Response } from 'express';
 
 @Controller('files')
 export class FilesController {
@@ -37,6 +41,18 @@ export class FilesController {
     )
     file: Express.Multer.File,
   ) {
-    return file;
+    const secureURL = `${file.filename}`;
+    return secureURL;
+  }
+
+  @Get('product/:imageName')
+  findProductImage(
+    @Param('imageName') imageName: string,
+    //el decorador Res es delicado ya que puede romper toda la aplicación
+    //con este decorador le indicamos a nest que nosotros emitiremos la respuesta de acuerdo a lo que necesitemos
+    @Res() res: Response,
+  ) {
+    const path = this.filesService.getStaticProductImage(imageName);
+    res.sendFile(path); //damos como respuesta en el endpoint directamente la imagen
   }
 }
