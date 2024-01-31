@@ -14,10 +14,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { fileNamer } from './helpers/fileNamer.helper';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly configService: ConfigService,
+  ) {}
 
   //usarlmente cargar archivos es un POST
   @Post('product')
@@ -41,8 +45,10 @@ export class FilesController {
     )
     file: Express.Multer.File,
   ) {
-    const secureURL = `${file.filename}`;
-    return secureURL;
+    const secureURL = `${this.configService.get('HOST_API')}/files/product/${
+      file.filename
+    }`;
+    return { secureURL };
   }
 
   @Get('product/:imageName')
