@@ -32,7 +32,7 @@ export class AuthService {
       //TODO: No es un todo. Se implementa JWT
       return {
         ...user,
-        token: this.getJwtToken({ email: user.email }),
+        token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
       this.handleDBErrores(error);
@@ -44,7 +44,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true }, //solo traemos, al consular un usuario completo, el correo y contraseña
+      select: { email: true, password: true, id: true }, //solo traemos, al consular un usuario completo, el correo y contraseña, pedimos el id por si las dudas
     });
 
     if (!user) {
@@ -58,7 +58,7 @@ export class AuthService {
     //TODO: No es un todo. Se implementa JWT
     return {
       ...user,
-      token: this.getJwtToken({ email: user.email }),
+      token: this.getJwtToken({ id: user.id }),
     };
   }
 
