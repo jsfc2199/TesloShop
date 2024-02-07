@@ -55,6 +55,7 @@ export class AuthService {
     if (!bcrypt.compareSync(password, user.password)) {
       throw new UnauthorizedException('Not valid credentials (password)');
     }
+
     delete user.password;
     //TODO: No es un todo. Se implementa JWT
     return {

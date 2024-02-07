@@ -13,11 +13,12 @@ export class User {
 
   @Column('text', {
     unique: true,
-    select: false, //cuando se haga un find no devolvera la contraseña que no queremos mostrar
   })
   email: string;
 
-  @Column('text', {})
+  @Column('text', {
+    select: false, //cuando se haga un find no devolvera la contraseña que no queremos mostrar
+  })
   password: string;
 
   @Column('text', {})
