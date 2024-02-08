@@ -16,14 +16,14 @@ export class UserRoleGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const validRoles: string[] = this.reflector.get(
+    //se modifica para funcionar tal cual la documentacion de nest y poder usar esto en otros modulos
+    const validRoles: string[] = this.reflector.getAllAndOverride<string[]>(
       META_ROLES,
-      context.getHandler(),
+      [context.getHandler(), context.getClass()],
     );
     const req = context.switchToHttp().getRequest();
     const user: User = req.user;
     if (!user) throw new BadRequestException('User not found');
-
     for (const role of user.roles) {
       if (validRoles.includes(role)) {
         return true;
