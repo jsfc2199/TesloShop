@@ -1,9 +1,11 @@
+import { User } from 'src/auth/entities/user.entity';
 import { ProductImage } from './product-image.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -62,6 +64,14 @@ export class Product {
     { cascade: true, eager: true }, // cascade: sirve para que si eliminamos un producto, tambien eliminara las imagenes relacionadas, //eager permite que al usar un metodo fin tengamos las relaciones
   )
   images?: ProductImage[];
+
+  //relacion producto - usuario
+  @ManyToOne(
+    () => User, //entidad con la que se relaciona
+    (user) => user.product, //parametro con el que se relaciona
+    { eager: true }, //para saber al consultar un producto, que usuairo lo creó
+  )
+  user: User;
 
   @BeforeInsert()
   checkSlugInsert() {
