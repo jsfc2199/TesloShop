@@ -13,6 +13,7 @@ import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { ProductImage } from './entities';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -30,7 +31,7 @@ export class ProductsService {
     private readonly productImageRepository: Repository<ProductImage>, //añadimos el repositorio para las imagenes y crear instancias
     private readonly dataSource: DataSource, //con esto tenemos acceso a la coneccion como tal de la base de datos
   ) {}
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     try {
       const { images = [], ...productDetails } = createProductDto; //desestructuramos el DTO
       const product = this.productRepository.create({
@@ -38,6 +39,7 @@ export class ProductsService {
         images: images.map((image) =>
           this.productImageRepository.create({ url: image }),
         ),
+        user: user, //indicamos el usuario a la hora de crear el producto
       }); //se crea solo la instancia junto con las imagenes
       await this.productRepository.save(product); //guardarmos el registro en la base de datos tanto del producto como las imagenes
       return { ...product, images: images };
@@ -99,7 +101,7 @@ export class ProductsService {
     };
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     //trabajams imagenes y el producto de manera independiente
     const { images, ...toUpdate } = updateProductDto; //las imagenes pueden ser nulas
 
@@ -130,6 +132,7 @@ export class ProductsService {
         );
       }
       //creamos la transaccion de guardar el producto
+      product.user = user; //le pasamos el usuario antes de guardarlo
       await queryRunner.manager.save(product);
 
       //impatamos la base de datos con un commit

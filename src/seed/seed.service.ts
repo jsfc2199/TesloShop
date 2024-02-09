@@ -17,9 +17,10 @@ export class SeedService {
     const seedProducts = initialData.products;
 
     const insertPromises = [];
-    seedProducts.forEach((product) => {
-      insertPromises.push(this.productsService.create(product)); //usamos el creat del propio servicio para reutilizar la lógica
-    });
+    //TODO: IMPLEMENTAR CORRECCION
+    // seedProducts.forEach((product) => {
+    //   insertPromises.push(this.productsService.create(product)); //usamos el creat del propio servicio para reutilizar la lógica
+    // });
 
     await Promise.all(insertPromises); //esperamos a que todas las promesas se resuelvan. Hasta que no se cumplan no segura con la siguiente linea
     return true;
