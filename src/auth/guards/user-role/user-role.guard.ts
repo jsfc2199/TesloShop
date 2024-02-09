@@ -21,6 +21,9 @@ export class UserRoleGuard implements CanActivate {
       META_ROLES,
       [context.getHandler(), context.getClass()],
     );
+    //para que el decorador de Auth pueda funcionar incluso sin argumentos
+    if (!validRoles) return true;
+    if (validRoles.length === 0) return true;
     const req = context.switchToHttp().getRequest();
     const user: User = req.user;
     if (!user) throw new BadRequestException('User not found');
