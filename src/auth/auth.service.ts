@@ -64,6 +64,14 @@ export class AuthService {
     };
   }
 
+  async checkAuthStatus(user: User) {
+    //generamos un nuevo token, para este punto ya sabemos que el usuario fue validado y todo esta correcto, solo generamos el nuevo token
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id }),
+    };
+  }
+
   private getJwtToken(payload: JwtPayload) {
     //usamos el servicio jwtService
     const token = this.jwtService.sign(payload);
