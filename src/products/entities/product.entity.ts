@@ -9,22 +9,27 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'products' })
 export class Product {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty()
   @Column('text', {
     unique: true, //para que dos columnas no puedan tener un mismo titulo
   })
   title: string;
 
+  @ApiProperty()
   @Column('float', {
     default: 0,
   })
   price: number;
 
+  @ApiProperty()
   //otra sintaxis para el decorador colum es pasarle un objeto directamente
   @Column({
     type: 'text',
@@ -32,30 +37,36 @@ export class Product {
   })
   description: string;
 
+  @ApiProperty()
   @Column('text', {
     unique: true,
   })
   slug: string;
 
+  @ApiProperty()
   @Column('int', {
     default: 0,
   })
   stock: number;
 
+  @ApiProperty()
   @Column('text', {
     array: true,
   })
   sizes: string[];
 
+  @ApiProperty()
   @Column('text')
   gender: string;
 
+  @ApiProperty()
   @Column('text', {
     array: true,
     default: [],
   })
   tags: string[];
 
+  @ApiProperty()
   //un producto tiene muchas images, por lo que se usa one to many
   //debemos especificar la relacion con el producto
   @OneToMany(
