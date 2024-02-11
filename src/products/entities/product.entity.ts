@@ -13,23 +13,38 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'products' })
 export class Product {
-  @ApiProperty()
+  @ApiProperty({
+    example: '1105e511-cbb6-49f7-b95b-7e757164753f',
+    description: 'Product items',
+    uniqueItems: true,
+  })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'T shirt',
+    description: 'Product title',
+    uniqueItems: true,
+  })
   @Column('text', {
     unique: true, //para que dos columnas no puedan tener un mismo titulo
   })
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 0,
+    description: 'Product price',
+  })
   @Column('float', {
     default: 0,
   })
   price: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'lorem impusm',
+    description: 'Product description',
+    default: null,
+  })
   //otra sintaxis para el decorador colum es pasarle un objeto directamente
   @Column({
     type: 'text',
@@ -37,25 +52,39 @@ export class Product {
   })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 't_shirt',
+    description: 'Product slug',
+    uniqueItems: true,
+  })
   @Column('text', {
     unique: true,
   })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 10,
+    description: 'Product stock',
+    default: 0,
+  })
   @Column('int', {
     default: 0,
   })
   stock: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: ['M', 'L', 'XL'],
+    description: 'Product sizes',
+  })
   @Column('text', {
     array: true,
   })
   sizes: string[];
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'women',
+    description: 'Product gender',
+  })
   @Column('text')
   gender: string;
 
