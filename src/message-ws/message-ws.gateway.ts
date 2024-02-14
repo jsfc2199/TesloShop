@@ -1,11 +1,13 @@
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { MessageWsService } from './message-ws.service';
 import { Server, Socket } from 'socket.io';
+import { NewMessageDto } from './dtos/new-message.dto';
 
 @WebSocketGateway({ cors: true })
 export class MessageWsGateway
@@ -35,5 +37,12 @@ export class MessageWsGateway
       'clients-updates',
       this.messageWsService.getConnectedClients(),
     );
+  }
+
+  //al usar este decorador siempre tenemos dos propiedades, el cliente y el payload
+  @SubscribeMessage('message-from-client')
+  handleMessageFromClient(client: Socket, payload: NewMessageDto) {
+    console.log(client.id);
+    console.log(payload.message);
   }
 }
