@@ -42,7 +42,21 @@ export class MessageWsGateway
   //al usar este decorador siempre tenemos dos propiedades, el cliente y el payload
   @SubscribeMessage('message-from-client')
   handleMessageFromClient(client: Socket, payload: NewMessageDto) {
-    console.log(client.id);
-    console.log(payload.message);
+    //! Emite unicamente al cliente inicial mismo que envió algo
+    // client.emit('message-from-server', {
+    //   fullName: 'Soy yo',
+    //   message: payload.message || 'no-message',
+    // });
+    //! Emitir a todos MENOS al cliente inicial
+    // client.broadcast.emit('message-from-server', {
+    //   fullName: 'Soy yo',
+    //   message: payload.message || 'no-message',
+    // });
+
+    //! Emitir a todos incluyendo al cliente inicial
+    this.webSocketServer.emit('message-from-server', {
+      fullName: 'Soy yo',
+      message: payload.message || 'no-message',
+    });
   }
 }
