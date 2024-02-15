@@ -48,4 +48,9 @@ export class MessageWsService {
   getConnectedClients(): string[] {
     return Object.keys(this.connectedClientes);
   }
+
+  //de la lista de clientes conectados devolvemos el nombre de la posicion del id que queremos
+  getUserFullNameBySocketId(socketId: string) {
+    return this.connectedClientes[socketId].user.fullName;
+  }
 }

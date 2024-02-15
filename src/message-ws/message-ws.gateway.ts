@@ -72,7 +72,8 @@ export class MessageWsGateway
 
     //! Emitir a todos incluyendo al cliente inicial
     this.webSocketServer.emit('message-from-server', {
-      fullName: 'Soy yo',
+      //en vez de quemar un nombre, al enviar un mensaje queremos saber el usuario que lo hizo
+      fullName: this.messageWsService.getUserFullNameBySocketId(client.id),
       message: payload.message || 'no-message',
     });
   }
