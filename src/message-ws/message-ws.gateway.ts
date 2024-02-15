@@ -8,6 +8,8 @@ import {
 import { MessageWsService } from './message-ws.service';
 import { Server, Socket } from 'socket.io';
 import { NewMessageDto } from './dtos/new-message.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'src/auth/interfaces';
 
 @WebSocketGateway({ cors: true })
 export class MessageWsGateway
@@ -16,10 +18,21 @@ export class MessageWsGateway
   //usamos este decorador para tener la informacion de todas las personas conectadas
   @WebSocketServer() webSocketServer: Server;
 
-  constructor(private readonly messageWsService: MessageWsService) {}
+  constructor(
+    private readonly messageWsService: MessageWsService,
+    private readonly jwtService: JwtService,
+  ) {}
   handleConnection(client: Socket) {
+    //hacemos la validacion del token
     const token = client.handshake.headers.authentication as string;
-    console.log({ token });
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (error) {
+      client.disconnect();
+      return;
+    }
+    console.log({ payload });
     // console.log(client.id, 'cliente conectado');
     this.messageWsService.registerClient(client);
 
