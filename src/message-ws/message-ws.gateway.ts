@@ -22,19 +22,21 @@ export class MessageWsGateway
     private readonly messageWsService: MessageWsService,
     private readonly jwtService: JwtService,
   ) {}
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     //hacemos la validacion del token
     const token = client.handshake.headers.authentication as string;
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verify(token);
+      //! enviamos el payload que nos da el token para registrar un cliente
+      //añadimos el await ya que el register client regresa ya una promesa
+      await this.messageWsService.registerClient(client, payload.id);
     } catch (error) {
       client.disconnect();
       return;
     }
-    console.log({ payload });
+    // console.log({ payload });
     // console.log(client.id, 'cliente conectado');
-    this.messageWsService.registerClient(client);
 
     //enviar mensaje a todas las personas conectadas
     //el emit recibe un identificador y su payload
