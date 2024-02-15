@@ -33,6 +33,7 @@ export class MessageWsService {
     if (!user) throw new Error('User not found');
     if (!user.isActive) throw new Error('User not active');
 
+    this.checkUserConnection(user);
     //indicamos en la lista de clientes conectados en la posicion del cliente que llegue que será igual al socket de ese cliente
     this.connectedClientes[client.id] = {
       socket: client,
@@ -52,5 +53,16 @@ export class MessageWsService {
   //de la lista de clientes conectados devolvemos el nombre de la posicion del id que queremos
   getUserFullNameBySocketId(socketId: string) {
     return this.connectedClientes[socketId].user.fullName;
+  }
+
+  //! vamos a suponer en este aplicativo que un usuario no requiere tener 2 o mas isntancias, aunque es relativo
+  private checkUserConnection(user: User) {
+    for (const clientId of Object.keys(this.connectedClientes)) {
+      const connectedClient = this.connectedClientes[clientId];
+      if (connectedClient.user.id === user.id) {
+        connectedClient.socket.disconnect();
+        break;
+      }
+    }
   }
 }
